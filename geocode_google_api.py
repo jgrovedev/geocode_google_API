@@ -37,8 +37,8 @@ def df_to_geojson(df, properties, lat='Latitude', lon='Longitude'):
         geojson['features'].append(feature)                             # add this feature (aka, converted dataframe row) to the list of features inside our dict
     return geojson
 
-cols = ['Brewery', 'Address']  # select which columns to add to properties in geojson
-geojson_dict = df_to_geojson(df_locations, properties=cols)
+cols = ['ENTER COLUMN NAMES WANTED IN FEATURES']  # select which columns to add to properties in geojson
+geojson_dict = df_to_geojson('df_locations', properties=cols)
 
 # save the geojson result to a file
 with open('ENTER OUTPUT FILE NAME HERE', 'w') as f:
