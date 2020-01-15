@@ -4,12 +4,12 @@ import requests
 import time
 import json
 
-df_locations = pd.read_csv('ENTER CSV FILE NAME HERE')
+df_locations = pd.read_csv('ENTER CSV FILE HERE')
 
 # function that accepts an address string, sends it to the Google API, and returns the lat-long API result
 def geocode(address):
     time.sleep(1) #pause for some duration before each request, to not hammer their server
-    url = 'https://maps.googleapis.com/maps/api/geocode/json?address={}&key=ENTER API KEY HERE' #api url with placeholders
+    url = 'https://maps.googleapis.com/maps/api/geocode/json?address={}&key=ENTER_API_KEY_HERE' #api url with placeholders
     request = url.format(address) #fill in the placeholder with a variable
     response = requests.get(request) #send the request to the server and get the response
     data = response.json() #convert the response json string into a dict
@@ -20,8 +20,8 @@ def geocode(address):
         return '{},{}'.format(latitude, longitude) #return lat-long as a string in the format google likes
 
 df_locations['latlng'] = df_locations['Address'].map(geocode)
-df_locations['Latitude'] = df_locations['latlng'].map(lambda x: x.split(',')[0])
-df_locations['Longitude'] = df_locations['latlng'].map(lambda x: x.split(',')[1])
+df_locations['Latitude'] = pd.to_numeric(df_locations['latlng'].map(lambda x: x.split(',')[0]), errors='coerce')
+df_locations['Longitude'] = pd.to_numeric(df_locations['latlng'].map(lambda x: x.split(',')[1]), errors='coerce')
 
 #CREATES A GEOJSON FILE
 def df_to_geojson(df, properties, lat='Latitude', lon='Longitude'):
@@ -37,14 +37,12 @@ def df_to_geojson(df, properties, lat='Latitude', lon='Longitude'):
         geojson['features'].append(feature)                             # add this feature (aka, converted dataframe row) to the list of features inside our dict
     return geojson
 
-cols = ['ENTER LIST OF COLUMNS HERE']  # select which columns to add to properties in geojson
+cols = ['Brewery', 'Address']  # select which columns to add to properties in geojson
 geojson_dict = df_to_geojson(df_locations, properties=cols)
-geojson_str = json.dumps(geojson_dict, indent=2)
 
 # save the geojson result to a file
-output_filename = 'ENTER OUTPUT FILE NAME HERE'
-with open(output_filename, 'w') as output_file:
-    output_file.write('var dataset = {};'.format(geojson_str))
+with open('ENTER OUTPUT FILE NAME HERE', 'w') as f:
+    json.dump(geojson_dict, f, indent=2)
 
 print('Geojson file created succesfully.')
 # how many features did we save to the geojson file?
